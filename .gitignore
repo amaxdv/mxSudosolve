@@ -1,0 +1,9 @@
+# Node modules
+node_modules/
+
+# VS Code Ordner
+.vscode/
+
+# Mac/Windows Systemdateien
+.DS_Store
+Thumbs.db
