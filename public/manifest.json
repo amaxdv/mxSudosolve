@@ -1,0 +1,15 @@
+{
+  "name": "mxSudosolve",
+  "short_name": "mxSudosolve",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#317EFB",
+  "icons": [
+    {
+      "src": "", 
+      "sizes": "", 
+      "type": "" 
+    }
+  ]
+}
