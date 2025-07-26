@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mxSudosolve</title>
+
+  <link rel="manifest" href="../public/manifest.json" />
+  <link rel="stylesheet" href="../src/style.css">
+</head>
+
+<body>
+  <h1>Sudoku Solver</h1>
+
+  <div id="poc-container" class="gameGrid"></div>
+
+  Set Grid Size
+  <div class="controls">
+    <button id="decrease">-1</button>
+    <div class="sizebox"><span id="gridSizeId"></span></div>
+    <button id="increase">+1</button>
+  </div>
+
+  <script type="module" src="../src/app.js"></script>
+
+</body>
+</html>

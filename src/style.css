@@ -1,38 +1,67 @@
-#sudoku-grid {
-  display: grid;
-  margin: 20px auto; /* Center grid horizontally */
-  gap: 0; /* no space between cells */
-  width: 90vmin; /* Responsive square grid: 90% of viewport smaller dim */
-  height: 90vmin; /* Matches width to make square */
-  border: 2px solid #333; /* Outer border for the grid */
-}
+body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        background-color: #dbdbdb;
+      }
 
-.cell {
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  text-align: center;
-  font-size: calc(1.5vmin);
-  border: 0.5px solid #aaa;
-}
+      .gameGrid {
+        display: grid;
+        gap: 0px;
+        margin: 20px;
+        max-width: 100vw;
+        max-height: 100vh;
+    }
 
-/* SubGrid borders: thick lines between subGrids */
-.subgrid-0-0:nth-child(3n) {
-  border-right: 2px solid #333;
-}
-.subgrid-0-0:nth-child(27n) {
-  border-bottom: 2px solid #333;
-}
+     .subgrid {
+        display: grid;
+        border: 1px solid #333;
+        width: clamp(90px, 30vw, 150px);
+        height: clamp(90px, 30vw, 150px);
+    }
 
-/* Alternative: Universal thick borders (more robust) */
-.cell {
-  border: 0.5px solid #aaa;
-}
-.cell:nth-child(n) {
-  border-right: 0.5px solid #aaa;
-  border-bottom: 0.5px solid #aaa;
-}
-.cell:last-child {
-  border-right: 2px solid #333;
-  border-bottom: 2px solid #333;
-}
+    .subgrid input {
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      font-size: clamp(0.7rem, 2vw, 1.2rem);
+      box-sizing: border-box;
+      border: 1px solid #aaa;
+    }
+
+    @media (max-width: 600px) { /*forcing fullscreen view on small displays*/
+      .gameGrid {
+        width: 95vw;
+        height: 95vw; 
+      }
+
+      .subgrid {
+        width: auto;
+        height: auto;
+      }
+
+      .subgrid input {
+        font-size: clamp(0.5rem, 2vw, 1.2rem);
+      }
+    }
+
+    .controls {
+      display: flex;
+      width: 200px;
+      margin-top: 20px;
+      background-color: white;
+    }
+
+    .sizebox {
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      font-size: 1.8em;
+      border: 1px solid #333;
+    }
+
+    button {
+      width: 100%;
+      font-size: 1em;
+    }
