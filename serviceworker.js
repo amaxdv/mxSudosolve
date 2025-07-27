@@ -5,7 +5,7 @@ const urlsToCache = [
   '/src/style.css',
   '/src/sudoku.js',
   '/src/app.js',
-  '/manifest.json'
+  '/public/manifest.json'
 ];
 
 // Install event – cache core files
