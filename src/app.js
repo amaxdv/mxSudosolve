@@ -2,6 +2,7 @@
 import { renderGameGrid } from './sudoku.js';
 
 //Registration of PWA Service Worker
+/*
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/serviceworker.js')
@@ -12,4 +13,4 @@ if ('serviceWorker' in navigator) {
         console.error('❌ Service Worker registration failed:', error);
       });
   });
-}
+}*/
