@@ -63,6 +63,81 @@
           pocContainer.appendChild(subGrid.getElement()); //..and insert subGrid into DOM-container.
         }
       }
+      initSudokuLogs()
+    }
+
+    // --- Logging / Rule Logic Anchor ---
+    export function initSudokuLogs() {
+      
+      // --- Subgrids ---
+      console.log('=== SubGrids Log ===');
+
+      for (let gridRow = 0; gridRow < n; gridRow++) { //for every (big) row..
+        for (let gridCol = 0; gridCol < n; gridCol++) { //..iterate through every (big) col and..
+          const subGrid = gameGrid[gridRow][gridCol]; //..rebuild the grid-position from gameGrid and..
+          const subGridElement = subGrid.getElement(); //..tage the subGrid-div-element from DOM and..
+          const inputCells = subGridElement.querySelectorAll('input'); //select the input-element as nodelist-object and..
+          
+          const cellIds = Array.from(inputCells).map(cell => cell.dataset.id); //..generate a functional array with all subGrid-IDs
+
+          console.log(`Subgrid [${gridRow},${gridCol}]:`,cellIds); //specify the subGrid and write the array.
+        }
+      }
+
+    // --- Globale Rows & Cols loggen ---
+    const subSize = 3;                //define subSizes as static 3x3 to calculate row and col positioning correctly
+    const totalRows = n * subSize;    //total number of global rows
+    const totalCols = n * subSize;   //total number of global cols
+
+    // --- Rows ---
+    console.log('=== Global Rows Log ===');
+
+    for (let rGlobal = 0; rGlobal < totalRows; rGlobal++) { //for every global row of entire game grid..
+      const gridRow = Math.floor(rGlobal / subSize); //..define a (big) row (subGrids in a row) and set them as three-number-pairs (0-2, 3-5, 6-8 ...) and..
+      const localRow = rGlobal % subSize;            //..define another (little) row within subGrid with cyclical numarion (0,1,2) and.. 
+
+      let globalRowCells = []; //..build an empty erray and..
+
+      for (let gridCol = 0; gridCol < n; gridCol++) { //iterate through every global col and repeat the DOM to array mechanic from above
+        const subGrid = gameGrid[gridRow][gridCol];
+        const subGridElement = subGrid.getElement();
+        const inputCells = subGridElement.querySelectorAll('input');
+
+        const matchingCells = Array.from(inputCells) //generate a functional array from the collected input cells
+          .filter(cell => Number(cell.dataset.localRow) === localRow) //browse the cells and keep only the mathing ones (with localRow)
+            .map(cell => cell.dataset.id); //transform the filtered elements to pure strings with dataset ID
+
+        globalRowCells.push(...matchingCells); //add to the initial empty array
+      }
+
+      console.log(`Global Row ${rGlobal}:`, globalRowCells); //specify the global row and write the array.
+    }
+
+    // --- Columns ---
+    console.log('=== Global Cols Log ===');
+
+    for (let cGlobal = 0; cGlobal < totalCols; cGlobal++) { //repeat the row mechanic for cols
+      const gridCol = Math.floor(cGlobal / subSize);
+      const localRow = cGlobal % subSize;
+
+      let globalColCells = [];
+
+      for (let gridRow = 0; gridRow < n; gridRow++) {
+        const subGrid = gameGrid[gridRow][gridCol];
+        const subGridElement = subGrid.getElement();
+        const inputCells = subGridElement.querySelectorAll('input');
+
+        const matchingCells = Array.from(inputCells)
+          .filter(cell => Number(cell.dataset.localCol) === localRow)
+          .map(cell => cell.dataset.id);
+
+        globalColCells.push(...matchingCells);
+      }
+      
+      console.log(`Global Col ${cGlobal}:`, globalColCells);
+    }
+
+    console.log('=== End of Grid Structure Log ===');
     }
 
     renderGameGrid();
