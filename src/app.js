@@ -1,5 +1,11 @@
 //Initialize sudoku.js
-import { renderGameGrid } from './sudoku.js';
+//import { renderGameGrid } from './sudoku.js';
+
+//import { renderGameGrid, initSudokuLogs } from './sudoku.js';
+//import { solvingLogics } from './solver.js';
+
+import './sudoku.js';
+import './solver.js';
 
 //Registration of PWA Service Worker
 /*

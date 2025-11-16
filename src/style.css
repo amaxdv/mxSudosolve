@@ -30,6 +30,22 @@ body {
       border: 1px solid #aaa;
     }
 
+    .tableStyle {
+      border-collapse: collapse;
+      width: 100%;
+      text-align: center;
+    }
+
+    .divColor {
+      background-color: rgb(255, 255, 255);
+      width: 40%;
+      margin-top: 20px;   
+    }
+
+    .preset {
+      color: red;
+    }
+
     @media (max-width: 600px) { /*forcing fullscreen view on small displays*/
       .gameGrid {
         width: 95vw;

@@ -1,3 +1,6 @@
+import { buildTable, resetTable } from './solver.js';
+
+
 //+++subGrid - build & render+++
     export class SubGrid {
         constructor(idPrefix = '') {
@@ -17,7 +20,7 @@
                   inputCell.type = 'text'; //~change to 'number' if Optional ID display is enabled
                   inputCell.maxLength = 1;
                   inputCell.dataset.id = this.idPrefix + letters[i];
-                  inputCell.value = inputCell.dataset.id; //~optional ID display 
+                  inputCell.placeholder = inputCell.dataset.id; //~optional ID display 
 
                 //Input-Cell Grid Positioning
                 const localRow = Math.floor(i / 3); //localRow 0,1,2 = 0 / 3,4,5 = 1 / 6,7,8 = 2
@@ -66,9 +69,12 @@
       initSudokuLogs()
     }
 
+    
     // --- Logging / Rule Logic Anchor ---
     export function initSudokuLogs() {
       
+      const cellContext = {};
+
       // --- Subgrids ---
       console.log('=== SubGrids Log ===');
 
@@ -79,6 +85,20 @@
           const inputCells = subGridElement.querySelectorAll('input'); //select the input-element as nodelist-object and..
           
           const cellIds = Array.from(inputCells).map(cell => cell.dataset.id); //..generate a functional array with all subGrid-IDs
+
+          //+++NEU für Logics+++
+          Array.from(inputCells).forEach(cell => {
+            const id = cell.dataset.id;
+
+            cellContext[id] = {
+              subgrid: [gridRow, gridCol],
+              localRow: Number(cell.dataset.localRow),
+              localCol: Number(cell.dataset.localCol),
+              // weitere Felder kommen später..
+              };
+            });
+
+            window.sudokuCellContext = cellContext; //..
 
           console.log(`Subgrid [${gridRow},${gridCol}]:`,cellIds); //specify the subGrid and write the array.
         }
@@ -108,9 +128,16 @@
             .map(cell => cell.dataset.id); //transform the filtered elements to pure strings with dataset ID
 
         globalRowCells.push(...matchingCells); //add to the initial empty array
+
+        
       }
 
       console.log(`Global Row ${rGlobal}:`, globalRowCells); //specify the global row and write the array.
+
+      //Neu - send to LogicTable
+      for (const id of globalRowCells) {
+        window.sudokuCellContext[id].globalRow = rGlobal;
+      }
     }
 
     // --- Columns ---
@@ -135,14 +162,82 @@
       }
       
       console.log(`Global Col ${cGlobal}:`, globalColCells);
+
+      //Neu - send to LogicTable
+      for (const id of globalColCells) {
+        window.sudokuCellContext[id].globalCol = cGlobal;
+      }
     }
 
     console.log('=== End of Grid Structure Log ===');
+
+    buildTable();
     }
+    
+/* in neue Datei verschoben
+    // ===== Rules and Logics =====
+    export function solvingLogics() {
+
+      // +++ datasources +++
+      const ctx = window.sudokuCellContext; //import the window-object from above
+      const calcDiv = document.getElementById("calcTable");
+
+      if (!ctx || !calcDiv) return; //only continue if ctx or calcDiv is not false
+
+      // +++ table and tableheader +++
+      const table = document.createElement("table"); //create a table
+      table.className = "tableStyle"; //give it a class
+
+      const header = document.createElement("tr"); //describe a header-row
+        ["Zelle", "Quadrant", "Zeile", "Spalte", "preset Value"].forEach(title => { //Collection of row-names - for each row-name as title..
+          const th = document.createElement("th"); //create a th-tag..
+          th.textContent = title; //name it like the title (row-name)..
+
+          th.style.border = "1px solid black"; //styles
+          th.style.padding = "4px";
+
+          header.appendChild(th); //connect the tags to header
+        });
+
+      table.appendChild(header); //connect the header to table
+
+      // +++ tablerows and -data +++
+      for (const id in ctx) { // ??
+        const cell = ctx[id];
+        const tableRow = document.createElement("tr");
+
+        const subString = `[${cell.subgrid[0]}|${cell.subgrid[1]}]`;
+
+          const tableValues = [ // matching order with row-names
+            id, // Zelle - wie geht das ohne "richtige" Definition - wo holt er die her??
+            subString, // Quadrant
+            cell.globalRow, // Zeile
+            cell.globalCol, //Spalte
+            cell.presetValue ?? "NULL" //hier Ergebnis aus Scan eintragen
+          ];
+
+          tableValues.forEach(val => {
+            const td = document.createElement("td");
+              td.textContent = val;
+
+              td.style.border = "1px solid black"; // styles
+              td.style.padding = "4px";
+
+            tableRow.appendChild(td);
+          });
+
+        table.appendChild(tableRow);
+      }
+
+    calcDiv.appendChild(table);
+
+    }
+
+    */
 
     renderGameGrid();
 
-//+++Control Field - Buttons & Display-Elements+++
+// ==== Control Field - Buttons & Display-Elements ====
     document.getElementById('increase').addEventListener('click', () => {
       if (n < 5) { //upper cap grid size
         n++;
@@ -151,6 +246,8 @@
       } else {
         alert("Maximale Feldgröße erreicht.")
       }
+      resetTable()
+      //buildTable()
     });
 
     document.getElementById('decrease').addEventListener('click', () => {
@@ -161,7 +258,80 @@
       } else {
         alert("Minimale Feldgröße erreicht.")
       }
+      resetTable()
+      //buildTable()
     });
 
     const gridSizeDisplay = document.getElementById("gridSizeId"); //Display actual Grid size
     gridSizeDisplay.textContent = n;
+
+/*in neue Datei verschoben
+// ==== Buttons to start action ====
+    export let sudokuMode = "idle";
+
+    document.getElementById('prepMode').addEventListener('click', () => {
+      sudokuMode = "prep";
+      console.log("Sudoku: Vorbereitungs-Modus aktiv.");
+
+      solveMode.disabled = false;      // jetzt darf der Nutzer weiter
+      
+    });
+
+    document.getElementById('solveMode').addEventListener('click', () => {
+      if (sudokuMode !== "prep") return;  // Sicherheitsgurt
+        sudokuMode = "solve";
+        console.log("Sudoku: Lösungs-Modus gestartet.");
+
+        scanGrid();
+
+    });
+
+    export function scanGrid() {
+        console.log("Sudoku: Scan gestartet...");
+
+          const ctx = window.sudokuCellContext;
+          if (!ctx) return;
+
+          const allCells = document.querySelectorAll('.subgrid input');
+
+          allCells.forEach(inputCell => {
+            const raw = inputCell.value.trim();
+            const id = inputCell.dataset.id;
+
+            let presetValue = null;
+
+            const num = Number(raw);
+            if (Number.isInteger(num) && num >= 1 && num <= 9) {
+              presetValue = num;
+            }
+
+            ctx[id].presetValue = presetValue;
+            updateCellDOM(id, presetValue);
+          });
+
+          console.log("Sudoku: Scan abgeschlossen.");
+
+          // Tabelle neu erzeugen
+          clearSudokuTable();
+          solvingLogics();
+    }
+
+    function updateCellDOM(id, presetValue) {
+        const cell = document.querySelector(`input[data-id="${id}"]`);
+          if (!cell) return;
+
+          if (presetValue === null) {
+            cell.classList.remove('preset');
+            cell.disabled = false;
+          } else {
+            cell.classList.add('preset');
+            cell.disabled = true;
+            cell.value = presetValue;
+        }
+}
+
+function clearSudokuTable() {
+  const calcDiv = document.getElementById("calcTable");
+  if (calcDiv) calcDiv.innerHTML = "";
+}
+  */
