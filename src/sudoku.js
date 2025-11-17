@@ -17,10 +17,11 @@ import { buildTable, resetTable } from './solver.js';
               for (let i = 0; i < 9; i++) {
                 //Input-Cells + properties
                 const inputCell = document.createElement('input'); 
-                  inputCell.type = 'text'; //~change to 'number' if Optional ID display is enabled
+                  inputCell.type = 'number'; //~changed to numbr an hide number-scroll-bars with css
                   inputCell.maxLength = 1;
                   inputCell.dataset.id = this.idPrefix + letters[i];
                   inputCell.placeholder = inputCell.dataset.id; //~optional ID display 
+                  inputCell.disabled = true;
 
                 //Input-Cell Grid Positioning
                 const localRow = Math.floor(i / 3); //localRow 0,1,2 = 0 / 3,4,5 = 1 / 6,7,8 = 2
