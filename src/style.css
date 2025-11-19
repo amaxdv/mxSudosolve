@@ -59,6 +59,11 @@ input[type=number] {
       color: red;
     }
 
+    .solved {
+      color: green;
+    }
+
+
     @media (max-width: 600px) { /*forcing fullscreen view on small displays*/
       .gameGrid {
         width: 95vw;
