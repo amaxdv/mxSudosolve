@@ -157,6 +157,64 @@ import { buildTable, resetTable } from './sudoku.js';
       return changed;
     }
 
+    export function hiddenSingles(dataCtx) {
+    const subgrids = {};
+
+    // 1. Subgrids mit IDs aufbauen
+    for (const id in dataCtx) {
+        const cell = dataCtx[id];
+        const key = `${cell.subgrid[0]}-${cell.subgrid[1]}`;
+
+        if (!subgrids[key]) subgrids[key] = [];
+        subgrids[key].push({ id, cell });
+    }
+
+    let changed = false;
+
+    // 2. Jedes Subgrid prüfen
+    for (const key in subgrids) {
+        const group = subgrids[key];
+
+        // a) Kandidatenzählung
+        const freq = {};  
+        // freq = { 1:[ids], 2:[ids], ... }
+
+        for (const { id, cell } of group) {
+            if (cell.trueValue) continue;
+            if (!Array.isArray(cell.validValue)) continue;
+
+            for (const v of cell.validValue) {
+                if (!freq[v]) freq[v] = [];
+                freq[v].push(id);  // merken, wo der Kandidat vorkommt
+            }
+        }
+
+        // b) Hidden Singles finden
+        for (let digit = 1; digit <= 9; digit++) {
+            const ids = freq[digit];
+            if (!ids) continue;
+            if (ids.length !== 1) continue;
+
+            // Hidden Single gefunden
+            const targetId = ids[0];
+            const target = dataCtx[targetId];
+
+            target.trueValue = digit;
+            target.validValue = [];
+
+            changed = true;
+
+            console.log(
+                `Hidden Single im Subgrid ${key}:`,
+                `${digit} → ${targetId}`
+            );
+        }
+    }
+    cleaningValids(dataCtx);
+    return changed;
+}
+
+
     export function cleaningValids(dataCtx) {
       const subgrids = {};
 
@@ -219,6 +277,39 @@ import { buildTable, resetTable } from './sudoku.js';
         }
       }
     }
+
+    export function solverAlgorithm(dataCtx) {
+    let changed = false;
+
+      // 1. wildcardExclusion
+      if (typeof wildcardExclusion === "function") {
+          if (wildcardExclusion(dataCtx)) changed = true;
+      }
+
+      // 2. nakedSingles
+      if (nakedSingles(dataCtx)) changed = true;
+
+      // 3. hiddenSingles
+      if (hiddenSingles(dataCtx)) changed = true;
+
+      // 4. updateGridTrues (schreibt die trueValues in die Inputs)
+      if (typeof updateGridTrues === "function") {
+          updateGridTrues(dataCtx);
+          // updateGridTrues gibt meist kein changed zurück – das ist okay.
+      }
+
+      // 5. Sudoku-Fertigkeitsprüfung (Platzhalter)
+      /*
+      if (typeof checkSudokuCompleted === "function") {
+          const solved = checkSudokuCompleted(dataCtx);
+          if (solved) console.log("Sudoku vollständig gelöst.");
+      } else {
+          console.log("checkSudokuCompleted() fehlt noch.");
+      }*/
+
+      return changed;
+    }
+
  
     // ==== Buttons to start action ====
     export let sudokuMode = "idle";
@@ -281,6 +372,12 @@ import { buildTable, resetTable } from './sudoku.js';
 
     document.getElementById('hiddenSingle').addEventListener('click', () => {
       sudokuMode = "hidden";
+      sudokuModeDisplay.textContent = sudokuMode;
+      
+      const dataCtx = window.sudokuCellContext;
+      hiddenSingles(dataCtx);
+
+      resetTable();
     });
  
     document.getElementById('colorCells').addEventListener('click', () => {
@@ -289,6 +386,17 @@ import { buildTable, resetTable } from './sudoku.js';
       
       const dataCtx = window.sudokuCellContext;
       updateGridTrues(dataCtx);
+    });
+
+    document.getElementById('solverAlgorithm').addEventListener('click', () => {
+      sudokuMode = "solving";
+      sudokuModeDisplay.textContent = sudokuMode;
+      
+      const dataCtx = window.sudokuCellContext;
+      const changed = solverAlgorithm(dataCtx);
+      resetTable();
+
+      console.log("Solver-Step fertig. Changes?", changed);
     });
  
     
