@@ -1,4 +1,4 @@
-import { buildTable, resetTable } from './solver.js';
+//import { buildTable, resetTable } from './solver.js';
 
 
 //+++subGrid - build & render+++
@@ -67,174 +67,200 @@ import { buildTable, resetTable } from './solver.js';
           pocContainer.appendChild(subGrid.getElement()); //..and insert subGrid into DOM-container.
         }
       }
-      initSudokuLogs()
+      //initSudokuLogs()
+      initSudokuDataCtx()
     }
 
-    
-    // --- Logging / Rule Logic Anchor ---
-    export function initSudokuLogs() {
+    export function initSudokuDataCtx() {
       
-      const cellContext = {};
+      console.log('=== Start of Grid Structure Log ===');
 
-      // --- Subgrids ---
+      const dataCtx = {};
+
+        const allInputs = document.querySelectorAll('.subgrid input');
+
+        allInputs.forEach(cell => {
+          const id = cell.dataset.id;
+
+          dataCtx[id] = {
+            // feste statische Struktur-Daten
+            subgrid: null,       // später gefüllt
+            localRow: Number(cell.dataset.localRow),
+            localCol: Number(cell.dataset.localCol),
+            globalRow: null,     // später gefüllt
+            globalCol: null,     // später gefüllt
+
+            // solver-Zustand
+            presetValue: null,
+            trueValue: null,
+            validValue: [1,2,3,4,5,6,7,8,9]
+          };
+        });
+
+        // --- Globale Rows & Cols loggen ---
+        const subSize = 3;                //define subSizes as static 3x3 to calculate row and col positioning correctly
+        const totalRows = n * subSize;    //total number of global rows
+        const totalCols = n * subSize;   //total number of global cols
+
+        assignSubgridInfo(dataCtx);
+        assignGlobalRows(dataCtx, subSize, totalRows);
+        assignGlobalCols(dataCtx, subSize, totalCols);
+
+        window.sudokuCellContext = dataCtx;
+
+        console.log('=== End of Grid Structure Log ===');
+
+        buildTable();
+    }
+
+    export function assignSubgridInfo(dataCtx) {
+
       console.log('=== SubGrids Log ===');
 
       for (let gridRow = 0; gridRow < n; gridRow++) { //for every (big) row..
         for (let gridCol = 0; gridCol < n; gridCol++) { //..iterate through every (big) col and..
+          
           const subGrid = gameGrid[gridRow][gridCol]; //..rebuild the grid-position from gameGrid and..
           const subGridElement = subGrid.getElement(); //..tage the subGrid-div-element from DOM and..
           const inputCells = subGridElement.querySelectorAll('input'); //select the input-element as nodelist-object and..
           
-          const cellIds = Array.from(inputCells).map(cell => cell.dataset.id); //..generate a functional array with all subGrid-IDs
-
-          //+++NEU für Logics+++
           Array.from(inputCells).forEach(cell => {
             const id = cell.dataset.id;
+            dataCtx[id].subgrid = [gridRow, gridCol];
+          });
 
-            cellContext[id] = {
-              subgrid: [gridRow, gridCol],
-              localRow: Number(cell.dataset.localRow),
-              localCol: Number(cell.dataset.localCol),
-              // weitere Felder kommen später..
-              };
-            });
-
-            window.sudokuCellContext = cellContext; //..
-
+          const cellIds = Array.from(inputCells).map(cell => cell.dataset.id); //..generate a functional array with all subGrid-IDs
           console.log(`Subgrid [${gridRow},${gridCol}]:`,cellIds); //specify the subGrid and write the array.
         }
       }
+    }
 
-    // --- Globale Rows & Cols loggen ---
-    const subSize = 3;                //define subSizes as static 3x3 to calculate row and col positioning correctly
-    const totalRows = n * subSize;    //total number of global rows
-    const totalCols = n * subSize;   //total number of global cols
+    function assignGlobalRows(dataCtx, subSize, totalRows) {
+      console.log('=== Global Rows Log ===');
 
-    // --- Rows ---
-    console.log('=== Global Rows Log ===');
+      for (let rGlobal = 0; rGlobal < totalRows; rGlobal++) { //for every global row of entire game grid..
+        const gridRow = Math.floor(rGlobal / subSize); //..define a (big) row (subGrids in a row) and set them as three-number-pairs (0-2, 3-5, 6-8 ...) and..
+        const localRow = rGlobal % subSize;            //..define another (little) row within subGrid with cyclical numarion (0,1,2) and.. 
 
-    for (let rGlobal = 0; rGlobal < totalRows; rGlobal++) { //for every global row of entire game grid..
-      const gridRow = Math.floor(rGlobal / subSize); //..define a (big) row (subGrids in a row) and set them as three-number-pairs (0-2, 3-5, 6-8 ...) and..
-      const localRow = rGlobal % subSize;            //..define another (little) row within subGrid with cyclical numarion (0,1,2) and.. 
+        let globalRowCells = []; //..build an empty erray and..
 
-      let globalRowCells = []; //..build an empty erray and..
+        for (let gridCol = 0; gridCol < n; gridCol++) { //iterate through every global col and repeat the DOM to array mechanic from above
+          const subGrid = gameGrid[gridRow][gridCol];
+          const subGridElement = subGrid.getElement();
+          const inputCells = subGridElement.querySelectorAll('input');
 
-      for (let gridCol = 0; gridCol < n; gridCol++) { //iterate through every global col and repeat the DOM to array mechanic from above
-        const subGrid = gameGrid[gridRow][gridCol];
-        const subGridElement = subGrid.getElement();
-        const inputCells = subGridElement.querySelectorAll('input');
+          const matchingCells = Array.from(inputCells) //generate a functional array from the collected input cells
+            .filter(cell => Number(cell.dataset.localRow) === localRow) //browse the cells and keep only the mathing ones (with localRow)
+              .map(cell => cell.dataset.id); //transform the filtered elements to pure strings with dataset ID
 
-        const matchingCells = Array.from(inputCells) //generate a functional array from the collected input cells
-          .filter(cell => Number(cell.dataset.localRow) === localRow) //browse the cells and keep only the mathing ones (with localRow)
-            .map(cell => cell.dataset.id); //transform the filtered elements to pure strings with dataset ID
+          globalRowCells.push(...matchingCells); //add to the initial empty array
 
-        globalRowCells.push(...matchingCells); //add to the initial empty array
+          
+        }
 
+        console.log(`Global Row ${rGlobal}:`, globalRowCells); //specify the global row and write the array.
+
+        for (const id of globalRowCells) {
+          dataCtx[id].globalRow = rGlobal;
+        }
+      }
+    }
+
+    export function assignGlobalCols(dataCtx, subSize, totalCols) {
+      console.log('=== Global Cols Log ===');
+
+      for (let cGlobal = 0; cGlobal < totalCols; cGlobal++) { //repeat the row mechanic for cols
+        const gridCol = Math.floor(cGlobal / subSize);
+        const localRow = cGlobal % subSize;
+
+        let globalColCells = [];
+
+        for (let gridRow = 0; gridRow < n; gridRow++) {
+          const subGrid = gameGrid[gridRow][gridCol];
+          const subGridElement = subGrid.getElement();
+          const inputCells = subGridElement.querySelectorAll('input');
+
+          const matchingCells = Array.from(inputCells)
+            .filter(cell => Number(cell.dataset.localCol) === localRow)
+            .map(cell => cell.dataset.id);
+
+          globalColCells.push(...matchingCells);
+        }
         
-      }
+        console.log(`Global Col ${cGlobal}:`, globalColCells);
 
-      console.log(`Global Row ${rGlobal}:`, globalRowCells); //specify the global row and write the array.
-
-      //Neu - send to LogicTable
-      for (const id of globalRowCells) {
-        window.sudokuCellContext[id].globalRow = rGlobal;
+        for (const id of globalColCells) {
+          dataCtx[id].globalCol = cGlobal;
+        }
       }
     }
 
-    // --- Columns ---
-    console.log('=== Global Cols Log ===');
+    export function buildTable() {
+     
+          // +++ datasources +++
+          const dataCtx = window.sudokuCellContext; //import the window-object 
+          const calcDiv = document.getElementById("calcTable");
+     
+          if (!dataCtx || !calcDiv) return; //only continue if ctx or calcDiv is not false
+     
+          // +++ table and tableheader +++
+          const table = document.createElement("table"); //create a table
+          table.className = "tableStyle"; //give it a class
+     
+          const header = document.createElement("tr"); //describe a header-row
+            ["Cell ID", "Subgrid", "Global Col", "Global Col", "presetValue", "validValue", "trueValue"].forEach(title => { //Collection of row-names - for each row-name as title..
+              const tableHead = document.createElement("th"); //create a th-tag..
+              tableHead.textContent = title; //name it like the title (row-name)..
+     
+              tableHead.style.border = "1px solid black"; //styles
+              tableHead.style.padding = "4px";
+     
+              header.appendChild(tableHead); //connect the tags to header
+            });
+     
+          table.appendChild(header); //connect the header to table
+     
+          // +++ tablerows and -data +++
+          for (const id in dataCtx) { // ??
+            const cell = dataCtx[id];
+            const tableRow = document.createElement("tr");
+     
+            const subString = `[${cell.subgrid[0]}|${cell.subgrid[1]}]`;
+     
+              const tableValues = [ // matching order with row-names
+                id, 
+                subString, 
+                cell.globalRow ?? "", 
+                cell.globalCol ?? "", 
+                cell.presetValue ?? "", 
+                JSON.stringify(cell.validValue),
+                cell.trueValue ?? ""
+              ];
+     
+              tableValues.forEach(val => {
+                const tableData = document.createElement("td");
+                  tableData.textContent = val;
+     
+                  tableData.style.border = "1px solid black"; // styles
+                  tableData.style.padding = "4px";
+     
+                tableRow.appendChild(tableData);
+              });
+     
+            table.appendChild(tableRow);
+          }
+     
+        calcDiv.appendChild(table);
+     
+        }
 
-    for (let cGlobal = 0; cGlobal < totalCols; cGlobal++) { //repeat the row mechanic for cols
-      const gridCol = Math.floor(cGlobal / subSize);
-      const localRow = cGlobal % subSize;
-
-      let globalColCells = [];
-
-      for (let gridRow = 0; gridRow < n; gridRow++) {
-        const subGrid = gameGrid[gridRow][gridCol];
-        const subGridElement = subGrid.getElement();
-        const inputCells = subGridElement.querySelectorAll('input');
-
-        const matchingCells = Array.from(inputCells)
-          .filter(cell => Number(cell.dataset.localCol) === localRow)
-          .map(cell => cell.dataset.id);
-
-        globalColCells.push(...matchingCells);
-      }
-      
-      console.log(`Global Col ${cGlobal}:`, globalColCells);
-
-      //Neu - send to LogicTable
-      for (const id of globalColCells) {
-        window.sudokuCellContext[id].globalCol = cGlobal;
-      }
-    }
-
-    console.log('=== End of Grid Structure Log ===');
-
-    buildTable();
-    }
+        export function resetTable() {
+        const calcDiv = document.getElementById("calcTable"); // get the Table from DOM
     
-/* in neue Datei verschoben
-    // ===== Rules and Logics =====
-    export function solvingLogics() {
-
-      // +++ datasources +++
-      const ctx = window.sudokuCellContext; //import the window-object from above
-      const calcDiv = document.getElementById("calcTable");
-
-      if (!ctx || !calcDiv) return; //only continue if ctx or calcDiv is not false
-
-      // +++ table and tableheader +++
-      const table = document.createElement("table"); //create a table
-      table.className = "tableStyle"; //give it a class
-
-      const header = document.createElement("tr"); //describe a header-row
-        ["Zelle", "Quadrant", "Zeile", "Spalte", "preset Value"].forEach(title => { //Collection of row-names - for each row-name as title..
-          const th = document.createElement("th"); //create a th-tag..
-          th.textContent = title; //name it like the title (row-name)..
-
-          th.style.border = "1px solid black"; //styles
-          th.style.padding = "4px";
-
-          header.appendChild(th); //connect the tags to header
-        });
-
-      table.appendChild(header); //connect the header to table
-
-      // +++ tablerows and -data +++
-      for (const id in ctx) { // ??
-        const cell = ctx[id];
-        const tableRow = document.createElement("tr");
-
-        const subString = `[${cell.subgrid[0]}|${cell.subgrid[1]}]`;
-
-          const tableValues = [ // matching order with row-names
-            id, // Zelle - wie geht das ohne "richtige" Definition - wo holt er die her??
-            subString, // Quadrant
-            cell.globalRow, // Zeile
-            cell.globalCol, //Spalte
-            cell.presetValue ?? "NULL" //hier Ergebnis aus Scan eintragen
-          ];
-
-          tableValues.forEach(val => {
-            const td = document.createElement("td");
-              td.textContent = val;
-
-              td.style.border = "1px solid black"; // styles
-              td.style.padding = "4px";
-
-            tableRow.appendChild(td);
-          });
-
-        table.appendChild(tableRow);
-      }
-
-    calcDiv.appendChild(table);
-
+        if (calcDiv) calcDiv.innerHTML = "";
+ 
+        buildTable();
     }
-
-    */
 
     renderGameGrid();
 
@@ -266,73 +292,3 @@ import { buildTable, resetTable } from './solver.js';
     const gridSizeDisplay = document.getElementById("gridSizeId"); //Display actual Grid size
     gridSizeDisplay.textContent = n;
 
-/*in neue Datei verschoben
-// ==== Buttons to start action ====
-    export let sudokuMode = "idle";
-
-    document.getElementById('prepMode').addEventListener('click', () => {
-      sudokuMode = "prep";
-      console.log("Sudoku: Vorbereitungs-Modus aktiv.");
-
-      solveMode.disabled = false;      // jetzt darf der Nutzer weiter
-      
-    });
-
-    document.getElementById('solveMode').addEventListener('click', () => {
-      if (sudokuMode !== "prep") return;  // Sicherheitsgurt
-        sudokuMode = "solve";
-        console.log("Sudoku: Lösungs-Modus gestartet.");
-
-        scanGrid();
-
-    });
-
-    export function scanGrid() {
-        console.log("Sudoku: Scan gestartet...");
-
-          const ctx = window.sudokuCellContext;
-          if (!ctx) return;
-
-          const allCells = document.querySelectorAll('.subgrid input');
-
-          allCells.forEach(inputCell => {
-            const raw = inputCell.value.trim();
-            const id = inputCell.dataset.id;
-
-            let presetValue = null;
-
-            const num = Number(raw);
-            if (Number.isInteger(num) && num >= 1 && num <= 9) {
-              presetValue = num;
-            }
-
-            ctx[id].presetValue = presetValue;
-            updateCellDOM(id, presetValue);
-          });
-
-          console.log("Sudoku: Scan abgeschlossen.");
-
-          // Tabelle neu erzeugen
-          clearSudokuTable();
-          solvingLogics();
-    }
-
-    function updateCellDOM(id, presetValue) {
-        const cell = document.querySelector(`input[data-id="${id}"]`);
-          if (!cell) return;
-
-          if (presetValue === null) {
-            cell.classList.remove('preset');
-            cell.disabled = false;
-          } else {
-            cell.classList.add('preset');
-            cell.disabled = true;
-            cell.value = presetValue;
-        }
-}
-
-function clearSudokuTable() {
-  const calcDiv = document.getElementById("calcTable");
-  if (calcDiv) calcDiv.innerHTML = "";
-}
-  */
