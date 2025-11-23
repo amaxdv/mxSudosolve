@@ -279,36 +279,38 @@ import { buildTable, resetTable } from './sudoku.js';
     }
 
     export function solverAlgorithm(dataCtx) {
-    let changed = false;
-
-      // 1. wildcardExclusion
-      if (typeof wildcardExclusion === "function") {
-          if (wildcardExclusion(dataCtx)) changed = true;
-      }
-
-      // 2. nakedSingles
-      if (nakedSingles(dataCtx)) changed = true;
-
-      // 3. hiddenSingles
-      if (hiddenSingles(dataCtx)) changed = true;
-
-      // 4. updateGridTrues (schreibt die trueValues in die Inputs)
-      if (typeof updateGridTrues === "function") {
-          updateGridTrues(dataCtx);
-          // updateGridTrues gibt meist kein changed zurück – das ist okay.
-      }
-
-      // 5. Sudoku-Fertigkeitsprüfung (Platzhalter)
-      /*
-      if (typeof checkSudokuCompleted === "function") {
-          const solved = checkSudokuCompleted(dataCtx);
-          if (solved) console.log("Sudoku vollständig gelöst.");
-      } else {
-          console.log("checkSudokuCompleted() fehlt noch.");
-      }*/
-
-      return changed;
+    
+    countTrueValues(dataCtx);
+    
     }
+
+    export function countTrueValues(dataCtx) {
+    let filledTrue = 0;
+    let emptyTrue = 0;
+
+    for (const id in dataCtx) {
+        if (dataCtx[id].trueValue != null) {
+            filledTrue++;
+        } else {
+            emptyTrue++;
+        }
+    }
+    console.log("Trues gefunden: ", filledTrue);
+    console.log("Trues leer: ", emptyTrue)
+    return { filledTrue, emptyTrue };
+    }
+
+    document.getElementById('solverAlgorithm').addEventListener('click', () => {
+      sudokuMode = "solving";
+      sudokuModeDisplay.textContent = sudokuMode;
+      
+      const dataCtx = window.sudokuCellContext;
+      //const changed = solverAlgorithm(dataCtx);
+      solverAlgorithm(dataCtx);
+      resetTable();
+
+      //console.log("Solver-Step fertig. Changes?", changed);
+    });
 
  
     // ==== Buttons to start action ====
@@ -388,15 +390,6 @@ import { buildTable, resetTable } from './sudoku.js';
       updateGridTrues(dataCtx);
     });
 
-    document.getElementById('solverAlgorithm').addEventListener('click', () => {
-      sudokuMode = "solving";
-      sudokuModeDisplay.textContent = sudokuMode;
-      
-      const dataCtx = window.sudokuCellContext;
-      const changed = solverAlgorithm(dataCtx);
-      resetTable();
-
-      console.log("Solver-Step fertig. Changes?", changed);
-    });
+    
  
     
