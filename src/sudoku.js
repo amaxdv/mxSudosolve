@@ -270,6 +270,7 @@
         n++;
           renderGameGrid();
             gridSizeDisplay.textContent = n;
+            alert("++Achtung++ Diese Lösungsversion verarbeitet im Demo-Modus nur 3x3 mögliche Werte.")
       } else {
         alert("Maximale Feldgröße erreicht.")
       }
@@ -282,6 +283,7 @@
         n--;
           renderGameGrid();
             gridSizeDisplay.textContent = n;
+            alert("++Achtung++ Diese Lösungsversion verarbeitet im Demo-Modus nur 3x3 mögliche Werte.")
       } else {
         alert("Minimale Feldgröße erreicht.")
       }

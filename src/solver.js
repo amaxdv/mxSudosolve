@@ -84,7 +84,6 @@ import { buildTable, resetTable } from './sudoku.js';
       for (const id in dataCtx) {
         const cell = dataCtx[id];
       
-
       if (cell.trueValue !== null && cell.trueValue !== undefined && cell.trueValue !== "") {
         cell.validValue = [];
         continue;
@@ -280,9 +279,125 @@ import { buildTable, resetTable } from './sudoku.js';
 
     export function solverAlgorithm(dataCtx) {
     
-    countTrueValues(dataCtx);
-    
+      let { filledTrue, emptyTrue } = countTrueValues(dataCtx); //initialize control-values
+      let lastFilled = filledTrue;
+
+      while (emptyTrue > 0) { //performing the solving-functions as long there are empty true values
+        wildcardExclusion(dataCtx); 
+        nakedSingles(dataCtx);
+        hiddenSingles(dataCtx);
+        updateGridTrues(dataCtx);
+
+        ({ filledTrue, emptyTrue } = countTrueValues(dataCtx)); //checking control values
+
+          if (filledTrue === lastFilled) { //stop if no new trues available
+            window.alert("Keine weiteren logischen Schritte möglich. BruteForce noch nicht implementiert.");
+            break;
+          }
+
+          if (emptyTrue === 0) { //stop if there are no emptys left
+            //window.alert("Glückwunsch - Sudoku vollständig gelöst!");
+
+            if (isSudokuValid(dataCtx)) {
+              window.alert("Sudoku vollständig gelöst und korrekt.");
+            } else {
+              window.alert("Gitter vollständig gefüllt, aber ungültig. Bitte Presets überprüfen.");
+            }
+            break;
+          }
+
+        lastFilled = filledTrue; //updating the control value
+      }
     }
+
+    // Prüft, ob ein Array mit 9 Elementen genau die Zahlen 1..9 enthält
+function isUnitValid(unit) {
+  if (!Array.isArray(unit) || unit.length !== 9) return false;
+  const seen = new Set();
+  for (const v of unit) {
+    if (typeof v !== 'number' || !Number.isInteger(v) || v < 1 || v > 9) return false;
+    seen.add(v);
+  }
+  return seen.size === 9;
+}
+
+/**
+ * Prüft das Sudoku-Endgitter auf Korrektheit:
+ * - baut intern ein 9x9-Grid aus dataCtx (unter Verwendung von globalRow/globalCol)
+ * - prüft jede Row, Col, Subgrid auf 1..9 genau einmal
+ *
+ * dataCtx: object { id: { globalRow, globalCol, trueValue, ... }, ... }
+ */
+export function isSudokuValid(dataCtx) {
+  if (!dataCtx || typeof dataCtx !== 'object') return false;
+
+  // Erzeuge 9x9 Grid initialisiert mit null
+  const grid = Array.from({ length: 9 }, () => Array(9).fill(null));
+
+  // Fülle Grid mit trueValue aus dataCtx
+  for (const cell of Object.values(dataCtx)) {
+    const r = Number(cell.globalRow);
+    const c = Number(cell.globalCol);
+    const v = cell.trueValue;
+
+    // Defensive checks: Indizes und value müssen vorhanden und gültig sein
+    if (!Number.isInteger(r) || r < 0 || r > 8) {
+      console.warn('isSudokuValid: ungültige globalRow für Zelle', cell);
+      return false;
+    }
+    if (!Number.isInteger(c) || c < 0 || c > 8) {
+      console.warn('isSudokuValid: ungültige globalCol für Zelle', cell);
+      return false;
+    }
+
+    // Wenn value leer ist -> sofort ungültig (du rufst Validierung nur wenn emptyTrue===0, aber safety)
+    if (v === null || v === undefined) {
+      return false;
+    }
+
+    // Falls mehrere Zellen auf dieselbe Position fallen -> ungültig
+    if (grid[r][c] !== null) {
+      console.warn('isSudokuValid: Doppelbelegung an Position', r, c);
+      return false;
+    }
+
+    // ensure numeric
+    const num = Number(v);
+    if (!Number.isInteger(num) || num < 1 || num > 9) return false;
+
+    grid[r][c] = num;
+  }
+
+  // Prüfe Zeilen
+  for (let r = 0; r < 9; r++) {
+    if (!isUnitValid(grid[r])) return false;
+  }
+
+  // Prüfe Spalten
+  for (let c = 0; c < 9; c++) {
+    const col = [];
+    for (let r = 0; r < 9; r++) col.push(grid[r][c]);
+    if (!isUnitValid(col)) return false;
+  }
+
+  // Prüfe Subgrids 3x3
+  for (let sgR = 0; sgR < 3; sgR++) {
+    for (let sgC = 0; sgC < 3; sgC++) {
+      const block = [];
+      for (let r = sgR * 3; r < sgR * 3 + 3; r++) {
+        for (let c = sgC * 3; c < sgC * 3 + 3; c++) {
+          block.push(grid[r][c]);
+        }
+      }
+      if (!isUnitValid(block)) return false;
+    }
+  }
+
+  // alles ok
+  return true;
+}
+
+
 
     export function countTrueValues(dataCtx) {
     let filledTrue = 0;
@@ -300,9 +415,9 @@ import { buildTable, resetTable } from './sudoku.js';
     return { filledTrue, emptyTrue };
     }
 
-    document.getElementById('solverAlgorithm').addEventListener('click', () => {
-      sudokuMode = "solving";
-      sudokuModeDisplay.textContent = sudokuMode;
+    document.getElementById('solveButton').addEventListener('click', () => {
+      //sudokuMode = "solving";
+      //sudokuModeDisplay.textContent = sudokuMode;
       
       const dataCtx = window.sudokuCellContext;
       //const changed = solverAlgorithm(dataCtx);
@@ -314,31 +429,57 @@ import { buildTable, resetTable } from './sudoku.js';
 
  
     // ==== Buttons to start action ====
-    export let sudokuMode = "idle";
+    //export let sudokuMode = "idle";
  
-    const sudokuModeDisplay = document.getElementById("sudokuMode"); //Display actual mode
-        sudokuModeDisplay.textContent = sudokuMode;
+    //const sudokuModeDisplay = document.getElementById("sudokuMode"); //Display actual mode
+      //  sudokuModeDisplay.textContent = sudokuMode;
  
-    document.getElementById('prepMode').addEventListener('click', () => {
-      sudokuMode = "prep";
-
-      sudokuModeDisplay.textContent = sudokuMode;
+    document.getElementById('prepareButton').addEventListener('click', () => {
+      //sudokuMode = "prep";
+      //sudokuModeDisplay.textContent = sudokuMode;
  
+      /*
       const enabledCells = document.querySelectorAll('.subgrid input'); 
         enabledCells.forEach(inputCell => {
           inputCell.disabled = false;
         });
  
-      solveMode.disabled = false;      // jetzt darf der Nutzer weiter
+      takeofButton.disabled = false;
+      prepareButton.disabled = true;      
  
       testSetup();
- 
-    });
- 
-    document.getElementById('solveMode').addEventListener('click', () => {
-      sudokuMode = "scanGrid";
+      */
 
-      sudokuModeDisplay.textContent = sudokuMode;
+      const demo = document.getElementById('demoRadio').checked;
+  const custom = document.getElementById('customRadio').checked;
+
+  // Eingabe freigeben
+  const enabledCells = document.querySelectorAll('.subgrid input');
+  enabledCells.forEach(inputCell => {
+    inputCell.disabled = false;
+  });
+
+  takeofButton.disabled = false;
+  prepareButton.disabled = true;
+
+  if (demo) {
+    // Demo-Modus → sofort Testdaten laden
+    testSetup();
+  }
+
+  if (custom) {
+    // Custom-Modus → nur Eingabe freigeben, sonst nichts.
+    // readPreset bleibt auf einem separaten Button.
+    console.log("Custom-Modus aktiv, warte auf manuelle Eingabe.");
+  }
+
+});
+ 
+  
+ 
+    document.getElementById('takeofButton').addEventListener('click', () => {
+      //sudokuMode = "scanGrid";
+      //sudokuModeDisplay.textContent = sudokuMode;
       
       scanGrid();
 
@@ -348,13 +489,16 @@ import { buildTable, resetTable } from './sudoku.js';
 
       resetTable();
  
-      trueVals.disabled = false;
+      //trueVals.disabled = false;
+      solveButton.disabled = false;
+      takeofButton.disabled = true;
  
     });
  
+    //++Invisble++
     document.getElementById('trueVals').addEventListener('click', () => {
-      sudokuMode = "searching Truth";
-      sudokuModeDisplay.textContent = sudokuMode;
+      //sudokuMode = "searching Truth";
+      //sudokuModeDisplay.textContent = sudokuMode;
  
       const dataCtx = window.sudokuCellContext;
       wildcardExclusion(dataCtx);
@@ -363,8 +507,8 @@ import { buildTable, resetTable } from './sudoku.js';
     });
 
     document.getElementById('nakedSingle').addEventListener('click', () => {
-      sudokuMode = "naked";
-      sudokuModeDisplay.textContent = sudokuMode;
+      //sudokuMode = "naked";
+      //sudokuModeDisplay.textContent = sudokuMode;
       
       const dataCtx = window.sudokuCellContext;
       nakedSingles(dataCtx);
@@ -373,8 +517,8 @@ import { buildTable, resetTable } from './sudoku.js';
     });
 
     document.getElementById('hiddenSingle').addEventListener('click', () => {
-      sudokuMode = "hidden";
-      sudokuModeDisplay.textContent = sudokuMode;
+      //sudokuMode = "hidden";
+      //sudokuModeDisplay.textContent = sudokuMode;
       
       const dataCtx = window.sudokuCellContext;
       hiddenSingles(dataCtx);
@@ -383,8 +527,8 @@ import { buildTable, resetTable } from './sudoku.js';
     });
  
     document.getElementById('colorCells').addEventListener('click', () => {
-      sudokuMode = "color";
-      sudokuModeDisplay.textContent = sudokuMode;
+      //sudokuMode = "color";
+      //sudokuModeDisplay.textContent = sudokuMode;
       
       const dataCtx = window.sudokuCellContext;
       updateGridTrues(dataCtx);

@@ -15,7 +15,7 @@
 
   <div id="poc-container" class="gameGrid"></div>
 
-  Set Grid Size
+  Spielfeld einstellen
   <div class="controls">
     <button id="decrease">-1</button>
     <div class="sizebox"><span id="gridSizeId"></span></div>
@@ -23,20 +23,45 @@
   </div>
 
   <br>
-  <p>Modus: <span id="sudokuMode"></span></p>
+  <!-- <p>Modus: <span id="sudokuMode"></span></p> -->
 
   <div>
-    <button id="prepMode">Vorbereiten</button>
-    <button id="solveMode" disabled>Scan for Preset</button>
-    <button id="trueVals" disabled>Wahrheit</button>
+    <!-- <label for="demoMode" value="" checked="true">Demo Daten</label>
+    <input type ="radio" id="demoMode">
+    <label for="customMode">Eigene Daten</label>
+    <input type="radio" id="customMode"> -->
+  
+
+  <fieldset>
+  <legend>Modus wählen</legend>
+
+  <div>
+    <input type="radio" id="demoRadio" name="drone" value="demo" checked />
+    <label for="demoRadio">Demo Daten</label>
+  </div>
+
+  <div>
+    <input type="radio" id="customRadio" name="drone" value="custom" />
+    <label for="customRadio">Eigene Daten</label>
+  </div>
+
+</fieldset>
+<br>
+
+</div>
+    
+  <div>
+    <button id="prepareButton">Daten eingeben</button>
+    <button id="takeofButton" disabled>Daten lesen</button>
+    <!-- <button id="trueVals" disabled>Wahrheit</button>
     <button id="nakedSingle">nakedSingle</button>
     <button id="hiddenSingle">hiddenSingle</button>
     <button id="colorCells">Farbe</button>
-    <button id="bruteForfe">bruteForce</button>
-    <button id="solverAlgorithm">Algorithmus</button>
+    <button id="bruteForfe">bruteForce</button> -->
+    <button id="solveButton" disabled>Sudoku lösen</button>
   </div>
 
-  <div id="calcTable" class="divColor"></div>
+  <div id="calcTable" class="divColor" hidden></div>
 
   <script type="module" src="src/app.js"></script>
 
