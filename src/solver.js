@@ -1,12 +1,12 @@
 import { buildTable, resetTable } from './sudoku.js';
 
 // === Buttons used in UI ===
+  
   // ++ Insert Data ++
   document.getElementById('prepareButton').addEventListener('click', () => {
-    
     const demo = document.getElementById('demoRadio').checked;
     const custom = document.getElementById('customRadio').checked;
-    
+
     const enabledCells = document.querySelectorAll('.subgrid input');
       enabledCells.forEach(inputCell => {
       inputCell.disabled = false;
@@ -17,16 +17,28 @@ import { buildTable, resetTable } from './sudoku.js';
 
     if (demo) {
       testSetup();
+
+      demoMsg1();
     }
 
     if (custom) {
-      window.alert("Eingabe freigegeben - bitte vorgegebene Werte übertragen.");
+      window.alert("Eingabe freigegeben. Bitte übertrage die Werte aus dem Sudoku, das du lösen willst, exakt in die entsprechenden Zellen des App-Rasters.");
     }
   });
 
+  function demoMsg1() {
+    demoMsg("Mit dem 'Starten-Button' wird die Eingabe aktiviert.<br>Anschließend überträgt man das zu lösende Sudoku Zelle für Zelle in das Raster der App.<br><br> Hier wurden jetzt die Demo-Daten eingefügt.<br><br> Drücke als nächstes auf den 'Daten lesen'-Button.");
+  };
+
   // ++ read Data ++
   document.getElementById('takeofButton').addEventListener('click', () => {
-    
+    const demo = document.getElementById('demoRadio').checked;
+    const custom = document.getElementById('customRadio').checked;
+
+    if (demo) {
+      demoMsg2();
+    }
+
     scanGrid();
 
     const dataCtx = window.sudokuCellContext;
@@ -38,14 +50,28 @@ import { buildTable, resetTable } from './sudoku.js';
     takeofButton.disabled = true;
   });
 
+  function demoMsg2() {
+    demoMsg("Durch das 'Daten lesen' erkennt die App eingetragenen Werte und markiert sie rot.<br><br> Diese 'Presets' gelten als 'wahre' Werte und stellen die Grundlage für den Lösungs-Algorithmus dar.<br><br>Drücke als nächstes auf den 'Sudoku lösen'-Button'.");
+  }
+
   // ++ Solve Riddle ++
   document.getElementById('solveButton').addEventListener('click', () => {
-    
+    const demo = document.getElementById('demoRadio').checked;
+    const custom = document.getElementById('customRadio').checked;
+
+    if (demo) {
+      demoMsg3();
+    }
+
     const dataCtx = window.sudokuCellContext;
     solverAlgorithm(dataCtx);
 
     resetTable(); // imported
   });
+
+  function demoMsg3() {
+    demoMsg("Der Algorithmus verwendet ein regelbasiertes Prüfverfahren und hat für jede Zelle einen eindeutigen Wert gefunden.<br><br> Lade die Site neu und probiere den 'Eigene Daten'-Modus aus<br>- Danke :)");
+  }
 
 // === Functions ===
   export function testSetup() {
@@ -137,7 +163,7 @@ import { buildTable, resetTable } from './sudoku.js';
         if (emptyTrue === 0) { //stop if there are no emptys left
 
           if (isSudokuValid(dataCtx)) {
-            window.alert("Sudoku vollständig gelöst und korrekt.");
+            //window.alert("Sudoku vollständig gelöst und korrekt.");
           } else {
             window.alert("Gitter vollständig gefüllt, aber ungültig. Bitte Presets überprüfen.");
           }
