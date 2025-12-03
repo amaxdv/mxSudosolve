@@ -176,6 +176,8 @@ import { buildTable, resetTable } from './sudoku.js';
 
     export function wildcardExclusion(dataCtx) {
   
+        //console.log("++ wildcards ++");
+
         for (const id in dataCtx) {
           const cell = dataCtx[id];
         
@@ -196,6 +198,7 @@ import { buildTable, resetTable } from './sudoku.js';
       }
   
         export function subgridRule (cell, dataCtx, wildcards) {
+          //console.log("++ subgrid rule ++");
           for (const id in dataCtx) {
             const other = dataCtx[id];
     
@@ -212,6 +215,7 @@ import { buildTable, resetTable } from './sudoku.js';
         }
     
         export function globalRowRule(cell, dataCtx, wildcards) {
+          //console.log("++ rows rule ++");
           for (const id in dataCtx) {
             const other = dataCtx[id];
         
@@ -224,6 +228,7 @@ import { buildTable, resetTable } from './sudoku.js';
         }
     
         export function globalColRule(cell, dataCtx, wildcards) {
+          //console.log("++ cols rule ++");
           for (const id in dataCtx) {
             const other = dataCtx[id];
         
@@ -240,12 +245,14 @@ import { buildTable, resetTable } from './sudoku.js';
  
       for (const id in dataCtx) {
         const cell = dataCtx[id];
+        const key = `${cell.subgrid[0]}-${cell.subgrid[1]}`;
  
         if (!cell.trueValue && Array.isArray(cell.validValue) && cell.validValue.length === 1) {
             cell.trueValue = cell.validValue[0];
             cell.validValue = []; 
             changed = true;
         }
+        //console.log(`Naked Single im Subgrid ${key}:`,`→ ${cell.validValue}`);
       }
       cleaningValids(dataCtx);
       return changed;

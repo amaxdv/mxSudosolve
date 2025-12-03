@@ -19,7 +19,7 @@
                   inputCell.type = 'number'; //~changed to numbr an hide number-scroll-bars with css
                   inputCell.maxLength = 1;
                   inputCell.dataset.id = this.idPrefix + letters[i];
-                  //inputCell.placeholder = inputCell.dataset.id; //~optional ID display 
+                  inputCell.placeholder = inputCell.dataset.id; //~optional ID display 
                   inputCell.disabled = true;
 
                 //Input-Cell Grid Positioning
