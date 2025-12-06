@@ -1,4 +1,10 @@
-import { buildTable, resetTable } from './sudoku.js';
+import { resetTable } from './sudoku.js';
+import { introMsg, demoMsg1, demoMsg2, demoMsg3, logCandidates } from './userexp.js';
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    introMsg();
+});
 
 // === Buttons used in UI ===
   
@@ -18,7 +24,7 @@ import { buildTable, resetTable } from './sudoku.js';
     if (demo) {
       testSetup();
 
-      demoMsg1();
+      demoMsg1(); // UX Component 
     }
 
     if (custom) {
@@ -26,9 +32,7 @@ import { buildTable, resetTable } from './sudoku.js';
     }
   });
 
-  function demoMsg1() {
-    demoMsg("Mit dem 'Starten-Button' wird die Eingabe aktiviert.<br>Anschließend überträgt man das zu lösende Sudoku Zelle für Zelle in das Raster der App.<br><br> Hier wurden jetzt die Demo-Daten eingefügt.<br><br> Drücke als nächstes auf den 'Daten lesen'-Button.");
-  };
+  
 
   // ++ read Data ++
   document.getElementById('takeofButton').addEventListener('click', () => {
@@ -50,10 +54,6 @@ import { buildTable, resetTable } from './sudoku.js';
     takeofButton.disabled = true;
   });
 
-  function demoMsg2() {
-    demoMsg("Durch das 'Daten lesen' erkennt die App eingetragenen Werte und markiert sie rot.<br><br> Diese 'Presets' gelten als 'wahre' Werte und stellen die Grundlage für den Lösungs-Algorithmus dar.<br><br>Drücke als nächstes auf den 'Sudoku lösen'-Button'.");
-  }
-
   // ++ Solve Riddle ++
   document.getElementById('solveButton').addEventListener('click', () => {
     const demo = document.getElementById('demoRadio').checked;
@@ -69,22 +69,51 @@ import { buildTable, resetTable } from './sudoku.js';
     resetTable(); // imported
   });
 
-  function demoMsg3() {
-    demoMsg("Der Algorithmus verwendet ein regelbasiertes Prüfverfahren und hat für jede Zelle einen eindeutigen Wert gefunden.<br><br> Lade die Site neu und probiere den 'Eigene Daten'-Modus aus<br>- Danke :)");
-  }
-
 // === Functions ===
   export function testSetup() {
       const testValues = {
-        "00A": 8, "00B": 7, "00D": 2, "00G": 5, "00H": 3,
-        "01D": 6, "01F": 5,
-        "02A": 6, "02B": 4, "02G": 9,
-        "10A": 7, "10I": 3,
-        "11A": 4, "11D": 2, "11E": 7, "11F": 3, "11I": 8,
-        "12A": 5, "12I": 6, 
-        "20C": 5, "20H": 1, "20I": 7,  
-        "21D": 1, "21F": 9,
-        "22B": 6, "22C": 3, "22F": 8, "22H": 9, "22I": 2  
+        //Very Hard
+        // "00A": null, "00B": 7, "00C": null, "00D": null, "00E": 2, "00F": 4, "00G": null, "00H": null, "00I": null,
+        // "01A": null, "01B": null, "01C": null, "01D": null, "01E": null, "01F": null, "01G": null, "01H": 3, "01I": 6,
+        // "02A": 1, "02B": null, "02C": 9, "02D": null, "02E": 6, "02F": null, "02G": null, "02H": null, "02I": null,
+
+        // "10A": null, "10B": 6, "10C": null, "10D": 9, "10E": null, "10F": null, "10G": 8, "10H": null, "10I": 2,
+        // "11A": null, "11B": null, "11C": 9, "11D": null, "11E": 8, "11F": null, "11G": 6, "11H": null, "11I": null,
+        // "12A": 8, "12B": null, "12C": 2, "12D": null, "12E": null, "12F": 5, "12G": null, "12H": 1, "12I": null,
+
+        // "20A": null, "20B": null, "20C": null, "20D": null, "20E": 1, "20F": null, "20G": 4, "20H": null, "20I": 5,
+        // "21A": 4, "21B": 6, "21C": null, "21D": null, "21E": null, "21F": null, "21G": null, "21H": null, "21I": null,
+        // "22A": null, "22B": null, "22C": null, "22D": 7, "22E": 4, "22F": null, "22G": null, "22H": 9, "22I": null
+        
+        
+        //Easy
+        "00A": 8,   "00B": 7,   "00C": null, "00D": 2,  "00E": null, "00F": null, "00G": 5,   "00H": 3,   "00I": null,
+        "01A": null,"01B": null,"01C": null,"01D": 6,   "01E": null, "01F": 5,   "01G": null,"01H": null,"01I": null,
+        "02A": 6,   "02B": 4,   "02C": null,"02D": null,"02E": null, "02F": null,"02G": 9,   "02H": null,"02I": null,
+
+        "10A": 7,   "10B": null,"10C": null,"10D": null,"10E": null, "10F": null,"10G": null,"10H": null,"10I": 3,
+        "11A": 4,   "11B": null,"11C": null,"11D": 2,   "11E": 7,   "11F": 3,   "11G": null,"11H": null,"11I": 8,
+        "12A": 5,   "12B": null,"12C": null,"12D": null,"12E": null, "12F": null,"12G": null,"12H": null,"12I": 6,
+
+        "20A": null,"20B": null,"20C": 5,   "20D": null,"20E": null, "20F": null,"20G": null,"20H": 1,   "20I": 7,
+        "21A": null,"21B": null,"21C": null,"21D": 1,   "21E": null, "21F": 9,   "21G": null,"21H": null,"21I": null,
+        "22A": null,"22B": 6,   "22C": 3,   "22D": null,"22E": null, "22F": 8,   "22G": null,"22H": 9,   "22I": 2
+        
+
+        /*
+        //Template
+        "00A": null, "00B": null, "00C": null, "00D": null, "00E": null, "00F": null, "00G": null, "00H": null, "00I": null,
+        "01A": null, "01B": null, "01C": null, "01D": null, "01E": null, "01F": null, "01G": null, "01H": null, "01I": null,
+        "02A": null, "02B": null, "02C": null, "02D": null, "02E": null, "02F": null, "02G": null, "02H": null, "02I": null,
+
+        "10A": null, "10B": null, "10C": null, "10D": null, "10E": null, "10F": null, "10G": null, "10H": null, "10I": null,
+        "11A": null, "11B": null, "11C": null, "11D": null, "11E": null, "11F": null, "11G": null, "11H": null, "11I": null,
+        "12A": null, "12B": null, "12C": null, "12D": null, "12E": null, "12F": null, "12G": null, "12H": null, "12I": null,
+
+        "20A": null, "20B": null, "20C": null, "20D": null, "20E": null, "20F": null, "20G": null, "20H": null, "20I": null,
+        "21A": null, "21B": null, "21C": null, "21D": null, "21E": null, "21F": null, "21G": null, "21H": null, "21I": null,
+        "22A": null, "22B": null, "22C": null, "22D": null, "22E": null, "22F": null, "22G": null, "22H": null, "22I": null
+        */
       };
  
       for (const id in testValues) { //write into grid
@@ -156,6 +185,7 @@ import { buildTable, resetTable } from './sudoku.js';
       ({ filledTrue, emptyTrue } = countTrueValues(dataCtx)); //checking control values
 
         if (filledTrue === lastFilled) { //stop if no new trues available
+          logCandidates(dataCtx);
           window.alert("Keine weiteren logischen Schritte möglich. BruteForce noch nicht implementiert.");
           break;
         }
@@ -163,10 +193,13 @@ import { buildTable, resetTable } from './sudoku.js';
         if (emptyTrue === 0) { //stop if there are no emptys left
 
           if (isSudokuValid(dataCtx)) {
+            //logCandidates(dataCtx);
             //window.alert("Sudoku vollständig gelöst und korrekt.");
           } else {
+            //logCandidates(dataCtx);
             window.alert("Gitter vollständig gefüllt, aber ungültig. Bitte Presets überprüfen.");
           }
+          logCandidates(dataCtx);
           break;
         }
 
@@ -433,7 +466,9 @@ import { buildTable, resetTable } from './sudoku.js';
       return seen.size === 9;
     }
 
+
 //=== Buttons Hidden for Debugging ===
+/*
   document.getElementById('trueVals').addEventListener('click', () => {
 
     const dataCtx = window.sudokuCellContext;
@@ -463,3 +498,4 @@ import { buildTable, resetTable } from './sudoku.js';
     const dataCtx = window.sudokuCellContext;
     updateGridTrues(dataCtx);
   });
+  */

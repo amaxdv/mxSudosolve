@@ -19,7 +19,7 @@
                   inputCell.type = 'number'; //~changed to numbr an hide number-scroll-bars with css
                   inputCell.maxLength = 1;
                   inputCell.dataset.id = this.idPrefix + letters[i];
-                  inputCell.placeholder = inputCell.dataset.id; //~optional ID display 
+                  //inputCell.placeholder = inputCell.dataset.id; //~optional ID display 
                   inputCell.disabled = true;
 
                 //Input-Cell Grid Positioning
@@ -129,7 +129,7 @@
           });
 
           const cellIds = Array.from(inputCells).map(cell => cell.dataset.id); //..generate a functional array with all subGrid-IDs
-          console.log(`Subgrid [${gridRow},${gridCol}]:`,cellIds); //specify the subGrid and write the array.
+          //console.log(`Subgrid [${gridRow},${gridCol}]:`,cellIds); //specify the subGrid and write the array.
         }
       }
     }
@@ -157,7 +157,7 @@
           
         }
 
-        console.log(`Global Row ${rGlobal}:`, globalRowCells); //specify the global row and write the array.
+        //console.log(`Global Row ${rGlobal}:`, globalRowCells); //specify the global row and write the array.
 
         for (const id of globalRowCells) {
           dataCtx[id].globalRow = rGlobal;
@@ -186,7 +186,7 @@
           globalColCells.push(...matchingCells);
         }
         
-        console.log(`Global Col ${cGlobal}:`, globalColCells);
+        //console.log(`Global Col ${cGlobal}:`, globalColCells);
 
         for (const id of globalColCells) {
           dataCtx[id].globalCol = cGlobal;
@@ -293,44 +293,5 @@
     const gridSizeDisplay = document.getElementById("gridSizeId"); //Display actual Grid size
     gridSizeDisplay.textContent = n;
 
-// === Overlays ===
-    document.addEventListener("DOMContentLoaded", () => {
 
-    // INTRO
-    const introOverlay = document.getElementById("introOverlay");
-    const introClose = document.getElementById("introClose");
-    //const startDemoBtn = document.getElementById("startDemoBtn");
-
-    introOverlay.classList.remove("hidden");
-
-    introClose.addEventListener("click", () => {
-        introOverlay.classList.add("hidden");
-    });
-
-    // startDemoBtn.addEventListener("click", () => {
-    //     introOverlay.classList.add("hidden");
-    //     // Hier startet dein Demo-Modus – setzt du selbst ein
-    // });
-
-    // DEMO Messages
-    const demoOverlay = document.getElementById("demoOverlay");
-    const demoTextElem = document.getElementById("demoText");
-    const demoNextBtn = document.getElementById("demoNextBtn");
-
-
-    function demoMsg(text) {
-        demoTextElem.innerHTML = text;
-        demoOverlay.classList.remove("hidden");
-
-        return new Promise(resolve => {
-            const handler = () => {
-                demoOverlay.classList.add("hidden");
-                demoNextBtn.removeEventListener("click", handler);
-                resolve();
-            };
-            demoNextBtn.addEventListener("click", handler);
-        });
-    }
-    window.demoMsg = demoMsg;
-});
 

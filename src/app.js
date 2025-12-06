@@ -4,8 +4,11 @@
 //import { renderGameGrid, initSudokuLogs } from './sudoku.js';
 //import { solvingLogics } from './solver.js';
 
+
+import './userexp.js';
 import './sudoku.js';
 import './solver.js';
+
 
 //Registration of PWA Service Worker
 /*

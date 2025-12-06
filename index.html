@@ -11,30 +11,11 @@
 </head>
 
 <body>
-  <div id="introOverlay" class="intro-overlay hidden">
-    <div class="intro-dialog">
-      <h2>Willkommen bei sudosolve.App</h2>
-      <p>
-      Diese Web App löst Sudoku-Rätsel und benötigt dafür nur ausreichend gültige Eingaben. <br><br>
-      Für neue Nutzer wird empfohlen, den Modus "Demo Daten" zu starten.
-      Dabei erlernt man die Bedienung anhand eines Beispiels. <br><br>
-      Wähle dazu 'Demo Daten' und drücke den 'Starten'-Button. <br>
-      </p>
-      <div class="intro-actions">
-          <!-- <button id="startDemoBtn">Demo-Modus</button> -->
-          <button id="introClose">Schließen</button>
-      </div>
-    </div>
+  <div id="demoOverlay" class="intro-overlay hidden">
+    <div id="demoDialog" class="intro-dialog"></div>
   </div>
 
-  <div id="demoOverlay" class="intro-overlay hidden">
-    <div class="intro-dialog">
-      <p id="demoText"></p>
-      <div class="intro-actions">
-          <button id="demoNextBtn">Weiter</button>
-      </div>
-    </div>
-  </div>
+  <div class="version">0.1.0</div>
 
   <h1>sudoSolve.App</h1>
 
@@ -51,11 +32,6 @@
   <!-- <p>Modus: <span id="sudokuMode"></span></p> -->
 
   <div>
-    <!-- <label for="demoMode" value="" checked="true">Demo Daten</label>
-    <input type ="radio" id="demoMode">
-    <label for="customMode">Eigene Daten</label>
-    <input type="radio" id="customMode"> -->
-  
 
   <fieldset>
   <legend>Modus wählen</legend>
