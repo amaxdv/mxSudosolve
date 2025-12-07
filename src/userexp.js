@@ -74,7 +74,7 @@ export function introMsg() {
 
 export function demoMsg1() {
     return showDialog({
-        title: "Eingabe freigegeben",
+        title: "Demo-Tour 1/3",
         description: `
         Mit dem 'Starten-Button' wird die Eingabe aktiviert.<br>
         Anschließend überträgt man das zu lösende Sudoku Zelle für Zelle in das Raster der App.<br><br> 
@@ -86,9 +86,9 @@ export function demoMsg1() {
 
 export function demoMsg2() {
     return showDialog({
-        title: "Eingaben registrieren",
+        title: "Demo-Tour 2/3",
         description: `
-        Durch das 'Daten lesen' erkennt die App eingetragenen Werte und markiert sie rot.<br><br> 
+        Durch das 'Daten lesen' erkennt die App eingetragenen Werte und markiert sie <span style="color: red">rot</span>.<br><br> 
         Diese 'Presets' gelten als 'wahre' Werte und stellen die Grundlage für den Lösungs-Algorithmus dar.<br><br>
         Drücke als nächstes auf den 'Sudoku lösen'-Button'.
         `
@@ -97,11 +97,10 @@ export function demoMsg2() {
 
 export function demoMsg3() {
     return showDialog({
-        title: "Berechnung abgeschlossen",
+        title: "Demo-Tour 3/3",
         description: `
-        Der Algorithmus verwendet ein regelbasiertes Prüfverfahren und hat für jede Zelle einen eindeutigen Wert gefunden.<br><br> 
-        Lade die Site neu und probiere den 'Eigene Daten'-Modus aus<br>
-        - Danke :)
+        Der Algorithmus verwendet ein regelbasiertes Prüfverfahren und hat für jede Zelle einen <span style="color: green">eindeutigen Wert</span> gefunden.<br><br> 
+        Lade die Site neu und probiere den 'Eigene Daten'-Modus aus.
         `
     });
 }
