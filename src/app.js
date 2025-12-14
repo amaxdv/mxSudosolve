@@ -8,6 +8,7 @@
 import './userexp.js';
 import './sudoku.js';
 import './solver.js';
+import './trackingdata.js';
 
 
 //Registration of PWA Service Worker

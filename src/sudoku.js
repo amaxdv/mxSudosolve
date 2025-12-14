@@ -1,74 +1,75 @@
 //import { buildTable, resetTable } from './solver.js';
 
 //+++subGrid - build & render+++
-    export class SubGrid {
-        constructor(idPrefix = '') {
-            this.idPrefix = idPrefix; //Proxy subgrid-ID to build cell-ID later
-            this.cells = this.createSubGrid(); 
-        }
-
-        createSubGrid() {
-          const container = document.createElement('div'); //div to hold subGrid
-          container.className = 'subgrid'; //appending CSS class
-
-          const letters = 'ABCDEFGHI'; //cell ID component
-
-              for (let i = 0; i < 9; i++) {
-                //Input-Cells + properties
-                const inputCell = document.createElement('input'); 
-                  inputCell.type = 'number'; //~changed to numbr an hide number-scroll-bars with css
-                  inputCell.maxLength = 1;
-                  inputCell.dataset.id = this.idPrefix + letters[i];
-                  //inputCell.placeholder = inputCell.dataset.id; //~optional ID display 
-                  inputCell.disabled = true;
-
-                //Input-Cell Grid Positioning
-                const localRow = Math.floor(i / 3); //localRow 0,1,2 = 0 / 3,4,5 = 1 / 6,7,8 = 2
-                  inputCell.dataset.localRow = localRow; //assigning inputCell row-logic (based on 0)
-                  inputCell.style.gridRow = localRow +1; //assinging inputCell row-style (based on 1)
-
-                const localCol = i % 3; //localCol 0,3,6 = 0 / 1,4,7 = 1 / 2,5,8 = 2
-                  inputCell.dataset.localCol = localCol;
-                  inputCell.style.gridColumn = localCol +1;
-
-                container.appendChild(inputCell);
-              }
-
-        return container; //returns the 9 input-cells as DOM-element (=> this.cells)
+  export class SubGrid {
+      constructor(idPrefix = '') {
+          this.idPrefix = idPrefix; //Proxy subgrid-ID to build cell-ID later
+          this.cells = this.createSubGrid(); 
       }
 
-      getElement() {
-        return this.cells; //Output subGrid-container
-      }
+      createSubGrid() {
+        const container = document.createElement('div'); //div to hold subGrid
+        container.className = 'subgrid'; //appending CSS class
+
+        const letters = 'ABCDEFGHI'; //cell ID component
+
+            for (let i = 0; i < 9; i++) {
+              //Input-Cells + properties
+              const inputCell = document.createElement('input'); 
+                inputCell.type = 'number'; //~changed to numbr an hide number-scroll-bars with css
+                inputCell.maxLength = 1;
+                inputCell.dataset.id = this.idPrefix + letters[i];
+                //inputCell.placeholder = inputCell.dataset.id; //~optional ID display 
+                inputCell.disabled = true;
+                inputCell.style['background-color'] = '#d6d6d6ff';
+
+              //Input-Cell Grid Positioning
+              const localRow = Math.floor(i / 3); //localRow 0,1,2 = 0 / 3,4,5 = 1 / 6,7,8 = 2
+                inputCell.dataset.localRow = localRow; //assigning inputCell row-logic (based on 0)
+                inputCell.style.gridRow = localRow +1; //assinging inputCell row-style (based on 1)
+
+              const localCol = i % 3; //localCol 0,3,6 = 0 / 1,4,7 = 1 / 2,5,8 = 2
+                inputCell.dataset.localCol = localCol;
+                inputCell.style.gridColumn = localCol +1;
+
+              container.appendChild(inputCell);
+            }
+
+      return container; //returns the 9 input-cells as DOM-element (=> this.cells)
     }
+
+    getElement() {
+      return this.cells; //Output subGrid-container
+    }
+  }
     
-    const pocContainer = document.getElementById('poc-container'); //linking container with ID in the DOM
+  const pocContainer = document.getElementById('poc-container'); //linking container with ID in the DOM
 
-    //+++gameGrid - build & render+++
-    export let n = 3;
-    export let gameGrid = {}; 
+//+++gameGrid - build & render+++
+  export let n = 3;
+  export let gameGrid = {}; 
 
-    export function renderGameGrid() {
-      gameGrid = {}; //clearing gameGrid-Object from previous subGrids
-      pocContainer.innerHTML = ''; //clearing the DOM from previous subGrids
+  export function renderGameGrid() {
+    gameGrid = {}; //clearing gameGrid-Object from previous subGrids
+    pocContainer.innerHTML = ''; //clearing the DOM from previous subGrids
 
-      pocContainer.style.gridTemplateColumns = `repeat(${n}, auto)`; //repeat grid-cells n-times and auto-size
-      pocContainer.style.gridTemplateRows = `repeat(${n}, auto)`;
+    pocContainer.style.gridTemplateColumns = `repeat(${n}, auto)`; //repeat grid-cells n-times and auto-size
+    pocContainer.style.gridTemplateRows = `repeat(${n}, auto)`;
 
-      for (let gridRow = 0; gridRow < n; gridRow++) { //for every big-grid-row..
-        gameGrid[gridRow] = {}; //..place space to save the subGrid-mapping..
+    for (let gridRow = 0; gridRow < n; gridRow++) { //for every big-grid-row..
+      gameGrid[gridRow] = {}; //..place space to save the subGrid-mapping..
 
-        for (let gridCol = 0; gridCol < n; gridCol++) { //..and for every big-grid-col..
-          const idPrefix = `${gridRow}${gridCol}`; //..and define and write the global-position ID-component..
-          const subGrid = new SubGrid(idPrefix, gridRow, gridCol); //..and define subGrid-object with an instance of subGrid-class..
-          gameGrid[gridRow][gridCol] = subGrid; //and save subGrid to gameGrid (e.g. gameGrid[0][0] = top left grid)..
-          
-          pocContainer.appendChild(subGrid.getElement()); //..and insert subGrid into DOM-container.
-        }
+      for (let gridCol = 0; gridCol < n; gridCol++) { //..and for every big-grid-col..
+        const idPrefix = `${gridRow}${gridCol}`; //..and define and write the global-position ID-component..
+        const subGrid = new SubGrid(idPrefix, gridRow, gridCol); //..and define subGrid-object with an instance of subGrid-class..
+        gameGrid[gridRow][gridCol] = subGrid; //and save subGrid to gameGrid (e.g. gameGrid[0][0] = top left grid)..
+        
+        pocContainer.appendChild(subGrid.getElement()); //..and insert subGrid into DOM-container.
       }
-      //initSudokuLogs()
-      initSudokuDataCtx()
     }
+    //initSudokuLogs()
+    initSudokuDataCtx()
+  }
 
     export function initSudokuDataCtx() {
       
@@ -129,7 +130,6 @@
           });
 
           const cellIds = Array.from(inputCells).map(cell => cell.dataset.id); //..generate a functional array with all subGrid-IDs
-          //console.log(`Subgrid [${gridRow},${gridCol}]:`,cellIds); //specify the subGrid and write the array.
         }
       }
     }
@@ -152,12 +152,8 @@
             .filter(cell => Number(cell.dataset.localRow) === localRow) //browse the cells and keep only the mathing ones (with localRow)
               .map(cell => cell.dataset.id); //transform the filtered elements to pure strings with dataset ID
 
-          globalRowCells.push(...matchingCells); //add to the initial empty array
-
-          
+          globalRowCells.push(...matchingCells); //add to the initial empty array 
         }
-
-        //console.log(`Global Row ${rGlobal}:`, globalRowCells); //specify the global row and write the array.
 
         for (const id of globalRowCells) {
           dataCtx[id].globalRow = rGlobal;
@@ -185,8 +181,6 @@
 
           globalColCells.push(...matchingCells);
         }
-        
-        //console.log(`Global Col ${cGlobal}:`, globalColCells);
 
         for (const id of globalColCells) {
           dataCtx[id].globalCol = cGlobal;
@@ -196,102 +190,99 @@
 
     export function buildTable() {
      
-          // +++ datasources +++
-          const dataCtx = window.sudokuCellContext; //import the window-object 
-          const calcDiv = document.getElementById("calcTable");
-     
-          if (!dataCtx || !calcDiv) return; //only continue if ctx or calcDiv is not false
-     
-          // +++ table and tableheader +++
-          const table = document.createElement("table"); //create a table
-          table.className = "tableStyle"; //give it a class
-     
-          const header = document.createElement("tr"); //describe a header-row
-            ["Cell ID", "Subgrid", "Global Col", "Global Col", "presetValue", "validValue", "trueValue"].forEach(title => { //Collection of row-names - for each row-name as title..
-              const tableHead = document.createElement("th"); //create a th-tag..
-              tableHead.textContent = title; //name it like the title (row-name)..
-     
-              tableHead.style.border = "1px solid black"; //styles
-              tableHead.style.padding = "4px";
-     
-              header.appendChild(tableHead); //connect the tags to header
-            });
-     
-          table.appendChild(header); //connect the header to table
-     
-          // +++ tablerows and -data +++
-          for (const id in dataCtx) { // ??
-            const cell = dataCtx[id];
-            const tableRow = document.createElement("tr");
-     
-            const subString = `[${cell.subgrid[0]}|${cell.subgrid[1]}]`;
-     
-              const tableValues = [ // matching order with row-names
-                id, 
-                subString, 
-                cell.globalRow ?? "", 
-                cell.globalCol ?? "", 
-                cell.presetValue ?? "", 
-                JSON.stringify(cell.validValue),
-                cell.trueValue ?? ""
-              ];
-     
-              tableValues.forEach(val => {
-                const tableData = document.createElement("td");
-                  tableData.textContent = val;
-     
-                  tableData.style.border = "1px solid black"; // styles
-                  tableData.style.padding = "4px";
-     
-                tableRow.appendChild(tableData);
-              });
-     
-            table.appendChild(tableRow);
-          }
-     
-        calcDiv.appendChild(table);
-     
-        }
+      // +++ datasources +++
+      const dataCtx = window.sudokuCellContext; //import the window-object 
+      const calcDiv = document.getElementById("calcTable");
 
-        export function resetTable() {
-        const calcDiv = document.getElementById("calcTable"); // get the Table from DOM
-    
-        if (calcDiv) calcDiv.innerHTML = "";
- 
-        buildTable();
+      if (!dataCtx || !calcDiv) return; //only continue if ctx or calcDiv is not false
+
+      // +++ table and tableheader +++
+      const table = document.createElement("table"); //create a table
+      table.className = "tableStyle"; //give it a class
+
+      const header = document.createElement("tr"); //describe a header-row
+        ["Cell ID", "Subgrid", "Global Col", "Global Col", "presetValue", "validValue", "trueValue"].forEach(title => { //Collection of row-names - for each row-name as title..
+          const tableHead = document.createElement("th"); //create a th-tag..
+          tableHead.textContent = title; //name it like the title (row-name)..
+
+          tableHead.style.border = "1px solid black"; //styles
+          tableHead.style.padding = "4px";
+
+          header.appendChild(tableHead); //connect the tags to header
+        });
+
+      table.appendChild(header); //connect the header to table
+
+      // +++ tablerows and -data +++
+      for (const id in dataCtx) { // ??
+        const cell = dataCtx[id];
+        const tableRow = document.createElement("tr");
+
+        const subString = `[${cell.subgrid[0]}|${cell.subgrid[1]}]`;
+
+          const tableValues = [ // matching order with row-names
+            id, 
+            subString, 
+            cell.globalRow ?? "", 
+            cell.globalCol ?? "", 
+            cell.presetValue ?? "", 
+            JSON.stringify(cell.validValue),
+            cell.trueValue ?? ""
+          ];
+
+          tableValues.forEach(val => {
+            const tableData = document.createElement("td");
+              tableData.textContent = val;
+
+              tableData.style.border = "1px solid black"; // styles
+              tableData.style.padding = "4px";
+
+            tableRow.appendChild(tableData);
+          });
+
+        table.appendChild(tableRow);
+      }
+
+    calcDiv.appendChild(table);
+    }
+
+    export function resetTable() {
+      const calcDiv = document.getElementById("calcTable"); // get the Table from DOM
+
+      if (calcDiv) calcDiv.innerHTML = "";
+
+      buildTable();
     }
 
     renderGameGrid();
 
 // ==== Control Field - Buttons & Display-Elements ====
-    document.getElementById('increase').addEventListener('click', () => {
-      if (n < 5) { //upper cap grid size
-        n++;
-          renderGameGrid();
-            gridSizeDisplay.textContent = n;
-            alert("++Achtung++ Diese Lösungsversion verarbeitet im Demo-Modus nur 3x3 mögliche Werte.")
-      } else {
-        alert("Maximale Feldgröße erreicht.")
-      }
-      resetTable()
-      //buildTable()
-    });
+  document.getElementById('increase').addEventListener('click', () => {
+    if (n < 5) { //upper cap grid size
+      n++;
+        renderGameGrid();
+          gridSizeDisplay.textContent = n;
+          alert("++Achtung++ Diese Lösungsversion verarbeitet im Demo-Modus nur 3x3 mögliche Werte.")
+    } else {
+      alert("Maximale Feldgröße erreicht.")
+    }
+    resetTable()
+  });
 
-    document.getElementById('decrease').addEventListener('click', () => {
-      if (n > 1) { //lower cap grid size
-        n--;
-          renderGameGrid();
-            gridSizeDisplay.textContent = n;
-            alert("++Achtung++ Diese Lösungsversion verarbeitet im Demo-Modus nur 3x3 mögliche Werte.")
-      } else {
-        alert("Minimale Feldgröße erreicht.")
-      }
-      resetTable()
-      //buildTable()
-    });
+  document.getElementById('decrease').addEventListener('click', () => {
+    if (n > 1) { //lower cap grid size
+      n--;
+        renderGameGrid();
+          gridSizeDisplay.textContent = n;
+          alert("++Achtung++ Diese Lösungsversion verarbeitet im Demo-Modus nur 3x3 mögliche Werte.")
+    } else {
+      alert("Minimale Feldgröße erreicht.")
+    }
+    resetTable()
+  });
 
-    const gridSizeDisplay = document.getElementById("gridSizeId"); //Display actual Grid size
-    gridSizeDisplay.textContent = n;
+  const gridSizeDisplay = document.getElementById("gridSizeId"); //Display actual Grid size
+  gridSizeDisplay.textContent = n;
 
 
 
